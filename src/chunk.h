@@ -26,10 +26,10 @@ typedef struct {
     // array for op codes
     uint8_t *code;
 
-    // array for line information
+    // array for line number information
     int *lines;
 
-    // array for constants values
+    // array for constants values (a.k.a. constant pool in other VMs)
     ValueArray constants;
 } Chunk;
 

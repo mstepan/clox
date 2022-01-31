@@ -14,6 +14,15 @@ int disassembleInstruction(Chunk *chunk, int offset) {
 
     printf("%04d ", offset);
 
+    // handle line number information
+    if (offset > 0 && chunk->lines[offset] == chunk->lines[offset - 1]) {
+        // same line, so just show vertical line
+        printf("    |");
+    } else {
+        // display new line number
+        printf("%4d ", chunk->lines[offset]);
+    }
+
     uint8_t instruction = chunk->code[offset];
 
     switch (instruction) {
