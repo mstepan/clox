@@ -1,31 +1,26 @@
+#
+# Specify build dir and executable target name.
+#
+BUILD_DIR=build
+TARGET = $(BUILD_DIR)/clox
 
-   
-TARGET = clox
-
-SRCS  = $(shell find ./src -type f -name *.c)
+# Specify header and implementation files
 HEADS = $(shell find ./src -type f -name *.h)
-OBJS = $(SRCS:.c=.o)
-DEPS = Makefile.depend
+SRCS  = $(shell find ./src -type f -name *.c)
 
 INCLUDES = -I./include
-CXXFLAGS = -g -Wall $(INCLUDES)
-LDFLAGS = -lm
+CCFLAGS = -g -Wall $(INCLUDES)
 
+.PHONY: all compile run clean
 
-all: $(TARGET)
+all: compile
 
-$(TARGET): $(OBJS) $(HEADS)
-	$(CC) $(LDFLAGS) -o $@ $(OBJS)
+compile: $(SRCS) $(HEADS)
+	mkdir -p $(BUILD_DIR)
+	$(CC) $(CCFLAGS) $(SRCS) -o $(TARGET)
 
-run: all
+run: $(TARGET)
 	@./$(TARGET)
 
-.PHONY: depend clean
-depend:
-	$(CXX) $(INCLUDES) -MM $(SRCS) > $(DEPS)
-	@sed -i -E "s/^(.+?).o: ([^ ]+?)\1/\2\1.o: \2\1/g" $(DEPS)
-
 clean:
-	$(RM) $(OBJS) $(TARGET)
-
--include $(DEPS)
+	rm -rf $(BUILD_DIR)
