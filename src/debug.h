@@ -7,6 +7,10 @@ void disassembleChunk(Chunk *chunk, const char *name);
 
 int disassembleInstruction(Chunk *chunk, int offset);
 
-int simpleInstruction(const char* opName, int offset);
+int simpleInstruction(const char *opName, int offset);
+
+int constantInstruction(const char *opName, Chunk *chunk, int offset);
+
+void printValue(Value value);
 
 #endif //CLOX_DEBUG_H
