@@ -14,7 +14,11 @@ int main(int argc, const char *argv[]) {
     writeChunk(&chunk, OP_CONST, 1);
     writeChunk(&chunk, constantOffset, 1);
 
-    writeChunk(&chunk, OP_RETURN, 2);
+    constantOffset = addConstant(&chunk, 177);
+    writeChunk(&chunk, OP_CONST, 2);
+    writeChunk(&chunk, constantOffset, 2);
+
+    writeChunk(&chunk, OP_RETURN, 3);
 
 //    disassembleChunk(&chunk, "test chunk");
     interpret(&chunk);

@@ -5,12 +5,28 @@
 
 VM vm;
 
+
+static void resetStack(){
+    vm.stackTop = vm.stack;
+}
+
 void initVM() {
+    resetStack();
     printf("VM initialized and ready to work\n");
 }
 
 void freeVM() {
     printf("VM destroyed\n");
+}
+
+static void printStackTrace(){
+    printf("\tstack:\t");
+    for(Value* cur = vm.stack; cur < vm.stackTop; cur++){
+        printf("[ ");
+        printValue(*cur);
+        printf(" ]");
+    }
+    printf("<-- top \n");
 }
 
 static InterpretResult run() {
@@ -20,6 +36,7 @@ static InterpretResult run() {
     for (;;) {
 
 #ifdef DEBUG_TRACE_EXECUTION
+        printStackTrace();
         int offset = vm.ip - vm.chunk->code;
         disassembleInstruction(vm.chunk, offset);
 #endif
@@ -30,11 +47,12 @@ static InterpretResult run() {
         switch (instruction = READ_BYTE()) {
             case OP_CONST: {
                 Value constantValue = READ_CONSTANT();
-                printValue(constantValue);
-                printf("\n");
+                push(constantValue);
                 break;
             }
             case OP_RETURN: {
+                printValue(pop());
+                printf("\n");
                 return INTERPRET_OK;
             }
         }
@@ -51,5 +69,15 @@ InterpretResult interpret(Chunk *chunk) {
     vm.ip = vm.chunk->code;
 
     return run();
+}
+
+void push(Value value){
+    (*vm.stackTop) = value;
+    vm.stackTop++;
+}
+
+Value pop(){
+    vm.stackTop--;
+    return *vm.stackTop;
 }
 
