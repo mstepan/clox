@@ -1,6 +1,8 @@
 #ifndef CLOX_VALUE_H
 #define CLOX_VALUE_H
 
+#include "common.h"
+
 typedef double Value;
 
 typedef struct {
@@ -9,10 +11,10 @@ typedef struct {
     Value *values;
 } ValueArray;
 
-void initValueArray(ValueArray *arrayPtr);
+void initValueArray(ValueArray *array);
 
-void writeValueArray(ValueArray *arrayPtr, Value value);
+void writeValueArray(ValueArray *array, Value value);
 
-void freeValueArray(ValueArray *arrayPtr);
+void freeValueArray(ValueArray *array);
 
 #endif //CLOX_VALUE_H

@@ -2,24 +2,25 @@
 #include "value.h"
 #include "memory.h"
 
-void initValueArray(ValueArray *arrayPtr) {
-    arrayPtr->count = 0;
-    arrayPtr->capacity = 0;
-    arrayPtr->values = NULL;
+void initValueArray(ValueArray *array) {
+    array->count = 0;
+    array->capacity = 0;
+    array->values = NULL;
 }
 
-void writeValueArray(ValueArray *arrayPtr, Value value) {
-    if (arrayPtr->capacity < arrayPtr->count + 1) {
-        const int oldCapacity = arrayPtr->capacity;
+void writeValueArray(ValueArray *array, Value value) {
+    if (array->capacity < array->count + 1) {
+        const int oldCapacity = array->capacity;
         const int newCapacity = GROW_CAPACITY(oldCapacity);
-        arrayPtr->values = GROW_ARRAY(Value , arrayPtr->values, oldCapacity, newCapacity);
+        array->values = GROW_ARRAY(Value , array->values, oldCapacity, newCapacity);
+        array->capacity = newCapacity;
     }
 
-    arrayPtr->values[arrayPtr->count] = value;
-    arrayPtr->count++;
+    array->values[array->count] = value;
+    array->count++;
 }
 
-void freeValueArray(ValueArray *arrayPtr) {
-    FREE_ARRAY(Value, arrayPtr->values, arrayPtr->capacity);
-    initValueArray(arrayPtr);
+void freeValueArray(ValueArray *array) {
+    FREE_ARRAY(Value, array->values, array->capacity);
+    initValueArray(array);
 }
