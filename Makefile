@@ -1,33 +1,31 @@
-TARGET_EXEC = clox
 
-BUILD_DIR = ./build
-SRC_DIRS = ./src
+   
+TARGET = clox
 
-SRCS := $(shell find $(SRC_DIRS) -name *.c)
-OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
-DEPS := $(OBJS:.o=.d)
+SRCS  = $(shell find ./src -type f -name *.c)
+HEADS = $(shell find ./src -type f -name *.h)
+OBJS = $(SRCS:.c=.o)
+DEPS = Makefile.depend
 
-INC_DIRS := $(shell find $(SRC_DIRS) -type d)
-INC_FLAGS := $(addprefix -I,$(INC_DIRS))
-
-CPPFLAGS = $(INC_FLAGS) -g -Wall
-
+INCLUDES = -I./include
+CXXFLAGS = -g -Wall $(INCLUDES)
+LDFLAGS = -lm
 
 
-$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-	$(CC) $(OBJS) -o $@ $(LDFLAGS)
+all: $(TARGET)
 
+$(TARGET): $(OBJS) $(HEADS)
+	$(CC) $(LDFLAGS) -o $@ $(OBJS)
 
-# c source
-$(BUILD_DIR)/%.c.o: %.c
-	mkdir -p $(dir $@)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+run: all
+	@./$(TARGET)
 
-
-.PHONY: clean
+.PHONY: depend clean
+depend:
+	$(CXX) $(INCLUDES) -MM $(SRCS) > $(DEPS)
+	@sed -i -E "s/^(.+?).o: ([^ ]+?)\1/\2\1.o: \2\1/g" $(DEPS)
 
 clean:
-	$(RM) -r $(BUILD_DIR)
+	$(RM) $(OBJS) $(TARGET)
 
 -include $(DEPS)
-
