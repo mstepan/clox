@@ -1,14 +1,19 @@
 #include <stdio.h>
-#include "common.h"
+#include "chunk.h"
 
 int main(int argc, const char *argv[]) {
 
-    for (int i = 0; i < 3; ++i) {
-        printf("i = %d\n", i);
-    }
+    Chunk chunk;
 
-    printf("CLox main completed...\n");
+    printf("Chunk of bytecode successfully allocated\n");
 
+    initChunk(&chunk);
 
+    writeChunk(&chunk, OP_CONST);
+
+    writeChunk(&chunk, OP_RETURN);
+    freeChunk(&chunk);
+
+    printf("CLox VM completed successfully\n");
     return 0;
 }
