@@ -6,9 +6,11 @@
 VM vm;
 
 void initVM() {
+    printf("VM initialized and ready to work\n");
 }
 
 void freeVM() {
+    printf("VM destroyed\n");
 }
 
 static InterpretResult run() {

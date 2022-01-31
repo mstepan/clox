@@ -8,8 +8,6 @@ int main(int argc, const char *argv[]) {
 
     Chunk chunk;
 
-    printf("Chunk of bytecode successfully allocated\n");
-
     initChunk(&chunk);
 
     int constantOffset = addConstant(&chunk, 3.14);
@@ -24,6 +22,5 @@ int main(int argc, const char *argv[]) {
     freeVM();
     freeChunk(&chunk);
 
-    printf("CLox VM completed successfully\n");
     return 0;
 }
