@@ -1,6 +1,10 @@
 #ifndef clox_chunk_h
 #define clox_chunk_h
 
-int printMe();
+#include "common.h"
+
+typedef enum {
+	OP_RETURN,
+} OpCode;
 
 #endif
