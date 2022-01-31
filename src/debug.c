@@ -2,7 +2,7 @@
 
 #include "debug.h"
 
-static void printValue(Value value) {
+void printValue(Value value) {
     printf("%g", value);
 }
 
@@ -38,7 +38,7 @@ static int constantLongInstruction(const char *opName, Chunk *chunk, int offset)
     return offset + 4;
 }
 
-static int disassembleInstruction(Chunk *chunk, int offset) {
+int disassembleInstruction(Chunk *chunk, int offset) {
 
     printf("%04d ", offset);
 

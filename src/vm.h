@@ -4,7 +4,10 @@
 #include "chunk.h"
 
 typedef struct {
+    // store pointer to a chunk that will be executed
     Chunk *chunk;
+
+    // IP current instruction pointer, sometimes called PC (program counter)
     uint8_t* ip;
 } VM;
 
