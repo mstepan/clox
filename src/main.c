@@ -14,7 +14,13 @@ int main(int argc, const char *argv[]) {
     writeChunk(&chunk, OP_CONST, 1);
     writeChunk(&chunk, constantOffset, 1);
 
-    writeChunk(&chunk, OP_RETURN, 2);
+    for(int i =0; i < 100; i++){
+        int value = 100 * (i+1);
+        int line = i+2;
+        writeLongConstant(&chunk, value, line);
+    }
+
+    writeChunk(&chunk, OP_RETURN, 102);
 
     disassembleChunk(&chunk, "test chunk");
 

@@ -9,8 +9,11 @@
  */
 typedef enum {
 
-    // 2 bytes: OP_CONST <constant pool index>
+    // 2 bytes: OP_CONST <1 byte for index>
     OP_CONST,
+
+    // 4 bytes: OP_CONST <3 bytes for index, store in little-endian order, least-significant byte first>
+    OP_CONST_LONG,
 
     // 1 byte: OP_RETURN
     OP_RETURN,
@@ -40,5 +43,7 @@ void writeChunk(Chunk *chunk, uint8_t byte, int line);
 void freeChunk(Chunk *chunk);
 
 int addConstant(Chunk *chunk, Value value);
+
+void writeLongConstant(Chunk *chunk, Value value, int line);
 
 #endif // CLOX_CHUNK_H

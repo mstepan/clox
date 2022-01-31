@@ -28,6 +28,8 @@ int disassembleInstruction(Chunk *chunk, int offset) {
     switch (instruction) {
         case OP_CONST:
             return constantInstruction("OP_CONST", chunk, offset);
+        case OP_CONST_LONG:
+            return constantLongInstruction("OP_CONST_LONG", chunk, offset);
         case OP_RETURN:
             return simpleInstruction("OP_RETURN", offset);
         default:
@@ -51,6 +53,22 @@ int constantInstruction(const char *opName, Chunk *chunk, int offset) {
     printf("'\n");
 
     return offset + 2;
+}
+
+int constantLongInstruction(const char *opName, Chunk *chunk, int offset){
+
+    // OP_CONST_LONG store operand in little-endian order
+    uint8_t loPart = chunk->code[offset + 1];
+    uint8_t midPart = chunk->code[offset + 2];
+    uint8_t hiPart = chunk->code[offset + 3];
+
+    int constIndex = (hiPart << 16) | (midPart << 8) | loPart;
+
+    printf("%-16s %4d '", opName, constIndex);
+    printValue(chunk->constants.values[constIndex]);
+    printf("'\n");
+
+    return offset + 4;
 }
 
 void printValue(Value value) {
