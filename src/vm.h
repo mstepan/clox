@@ -1,7 +1,7 @@
 #ifndef CLOX_VM_H
 #define CLOX_VM_H
 
-#include "chunk.h"
+#include "bytecode/chunk.h"
 
 typedef struct {
     // store pointer to a chunk that will be executed

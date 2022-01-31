@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "chunk.h"
-#include "debug.h"
+#include "bytecode/chunk.h"
+#include "util/debug.h"
 #include "vm.h"
 
 int main(int argc, const char *argv[]) {
