@@ -29,6 +29,10 @@ static void printStackTrace(){
     printf("<-- top \n");
 }
 
+static void negateStackTop(){
+    *(vm.stackTop-1)  = -(*(vm.stackTop-1));
+}
+
 static InterpretResult run() {
 #define READ_BYTE()(*vm.ip++)
 #define READ_CONSTANT() (vm.chunk->constants.values[READ_BYTE()])
@@ -63,7 +67,9 @@ static InterpretResult run() {
             case OP_DIVIDE: BINARY_OP(/); break;
 
             case OP_NEGATE: {
-                push(-pop());
+                // negate last value on top of stack
+                // it's quicker than just pop(), negate and push()
+                negateStackTop();
                 break;
             }
             case OP_RETURN: {
