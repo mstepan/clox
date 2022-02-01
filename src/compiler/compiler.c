@@ -6,6 +6,7 @@ void compile(const char* source){
     initScanner(source);
     int line = -1;
 
+    // scan and print token till we find EOF
     for(;;){
         Token token = scanToken();
         if( token.line != line ){
@@ -16,6 +17,7 @@ void compile(const char* source){
             printf("    |  ");
         }
         printf("%2d '%.*s'\n", token.type, token.length, token.start);
+
         if(token.type == TOKEN_EOF) break;
     }
 }

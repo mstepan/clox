@@ -60,6 +60,7 @@ static bool match(char expectedCh) {
     if (isAtEnd()) {
         return false;
     }
+
     if (*scanner.current != expectedCh) {
         return false;
     }
@@ -130,13 +131,13 @@ Token scanToken() {
 
             // 1 or 2 chars match
         case '!':
-            return makeToken(match('=' ? TOKEN_BANG_EQUAL : TOKEN_EQUAL_EQUAL));
+            return makeToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_EQUAL_EQUAL);
         case '=':
-            return makeToken(match('=' ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL));
+            return makeToken(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
         case '<':
-            return makeToken(match('=' ? TOKEN_LESS_EQUAL : TOKEN_LESS));
+            return makeToken(match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
         case '>':
-            return makeToken(match('=' ? TOKEN_GREATER_EQUAL : TOKEN_GREATER));
+            return makeToken(match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
     }
 
     return errorToken("Unexpected character");
