@@ -10,13 +10,18 @@ int main(int argc, const char *argv[]) {
 
     initChunk(&chunk);
 
-    int constantOffset = addConstant(&chunk, 3.14);
-    writeChunk(&chunk, OP_CONST, 1);
-    writeChunk(&chunk, constantOffset, 1);
+    int constantOffset = addConstant(&chunk, 10);
+    writeChunk(&chunk, OP_CONST, 10);
+    writeChunk(&chunk, constantOffset, 10);
 
-    writeChunk(&chunk, OP_NEGATE, 1);
+    constantOffset = addConstant(&chunk, 2);
+    writeChunk(&chunk, OP_CONST, 11);
+    writeChunk(&chunk, constantOffset, 11);
 
-    writeChunk(&chunk, OP_RETURN, 3);
+    writeChunk(&chunk, OP_SUBTRACT, 12);
+    
+
+    writeChunk(&chunk, OP_RETURN, 15);
 
 //    disassembleChunk(&chunk, "test chunk");
     interpret(&chunk);

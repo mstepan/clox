@@ -32,6 +32,12 @@ static void printStackTrace(){
 static InterpretResult run() {
 #define READ_BYTE()(*vm.ip++)
 #define READ_CONSTANT() (vm.chunk->constants.values[READ_BYTE()])
+#define BINARY_OP(op) \
+    do {              \
+    double second = pop(); \
+    double first = pop();  \
+    push(first op second); \
+    } while( false ) \
 
     for (;;) {
 
@@ -50,6 +56,12 @@ static InterpretResult run() {
                 push(constantValue);
                 break;
             }
+
+            case  OP_ADD: BINARY_OP(+); break;
+            case OP_SUBTRACT: BINARY_OP(-); break;
+            case OP_MULTIPLY: BINARY_OP(*); break;
+            case OP_DIVIDE: BINARY_OP(/); break;
+
             case OP_NEGATE: {
                 push(-pop());
                 break;
