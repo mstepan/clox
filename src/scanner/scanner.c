@@ -25,7 +25,6 @@ void initScanner(const char *source) {
     scanner.start = source;
     scanner.current = source;
     scanner.line = 1;
-    printf("Scanner initialized successfully\n");
 }
 
 static bool isAtEnd() {

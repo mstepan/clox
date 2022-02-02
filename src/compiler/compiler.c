@@ -1,23 +1,40 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "compiler.h"
 #include "../scanner/scanner.h"
 
-void compile(const char* source){
+static char *substring(const char *baseStr, size_t length) {
+    char *tokenValue = (char *) malloc(length + 1);
+
+    for(int i =0; i < length; i++){
+        tokenValue[i] = baseStr[i];
+    }
+
+    tokenValue[length] = '\0';
+
+    return tokenValue;
+}
+
+void compile(const char *source) {
     initScanner(source);
     int line = -1;
 
-    // scan and print token till we find EOF
-    for(;;){
+    // scan and print token till we get EOF
+    for (;;) {
         Token token = scanToken();
-        if( token.line != line ){
-            printf("%4d", token.line);
+        if (token.line != line) {
+            printf("%d | ", token.line);
             line = token.line;
+        } else {
+            printf(" |  ");
         }
-        else {
-            printf("    |  ");
-        }
-        printf("%2d '%.*s'\n", token.type, token.length, token.start);
 
-        if(token.type == TOKEN_EOF) break;
+        const char *tokenValue = substring(token.start, token.length);
+
+        printf("type: %d, %s\n", token.type, tokenValue);
+
+        free((void*)tokenValue);
+
+        if (token.type == TOKEN_EOF) break;
     }
 }

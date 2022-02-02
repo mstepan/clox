@@ -12,11 +12,9 @@ static void resetStack(){
 
 void initVM() {
     resetStack();
-    printf("VM initialized and ready to work\n");
 }
 
 void freeVM() {
-    printf("VM destroyed\n");
 }
 
 static void printStackTrace(){
@@ -87,7 +85,6 @@ static InterpretResult run() {
 
 InterpretResult interpret(const char* source) {
 
-    printf("Interpreting: %s\n", source);
     //TODO:
 //    vm.chunk = chunk;
 //    vm.ip = vm.chunk->code;
