@@ -6,7 +6,7 @@
 // global VM instance
 VM vm;
 
-static void resetStack(){
+static void resetStack() {
     vm.stackTop = vm.stack;
 }
 
@@ -17,9 +17,9 @@ void initVM() {
 void freeVM() {
 }
 
-static void printStackTrace(){
+static void printStackTrace() {
     printf("\tstack:\t");
-    for(Value* cur = vm.stack; cur < vm.stackTop; cur++){
+    for (Value *cur = vm.stack; cur < vm.stackTop; cur++) {
         printf("[ ");
         printValue(*cur);
         printf(" ]");
@@ -27,8 +27,8 @@ static void printStackTrace(){
     printf("<-- top \n");
 }
 
-static void negateStackTop(){
-    *(vm.stackTop-1)  = -(*(vm.stackTop-1));
+static void negateStackTop() {
+    *(vm.stackTop - 1) = -(*(vm.stackTop - 1));
 }
 
 static InterpretResult run() {
@@ -59,10 +59,18 @@ static InterpretResult run() {
                 break;
             }
 
-            case  OP_ADD: BINARY_OP(+); break;
-            case OP_SUBTRACT: BINARY_OP(-); break;
-            case OP_MULTIPLY: BINARY_OP(*); break;
-            case OP_DIVIDE: BINARY_OP(/); break;
+            case OP_ADD:
+                BINARY_OP(+);
+                break;
+            case OP_SUBTRACT:
+                BINARY_OP(-);
+                break;
+            case OP_MULTIPLY:
+                BINARY_OP(*);
+                break;
+            case OP_DIVIDE:
+                BINARY_OP(/);
+                break;
 
             case OP_NEGATE: {
                 // negate last value on top of stack
@@ -83,22 +91,31 @@ static InterpretResult run() {
 #undef READ_BYTE
 }
 
-InterpretResult interpret(const char* source) {
+InterpretResult interpret(const char *source) {
+    Chunk chunk;
+    initChunk(&chunk);
 
-    //TODO:
-//    vm.chunk = chunk;
-//    vm.ip = vm.chunk->code;
+    if (!compile(source, &chunk)) {
+        freeChunk(&chunk);
+        return INTERPRET_COMPILE_ERROR;
+    }
 
-    compile(source);
-    return INTERPRET_OK;
+    vm.chunk = &chunk;
+    vm.ip = vm.chunk->code;
+
+    InterpretResult result = run();
+
+    freeChunk(&chunk);
+
+    return result;
 }
 
-void push(Value value){
+void push(Value value) {
     (*vm.stackTop) = value;
     vm.stackTop++;
 }
 
-Value pop(){
+Value pop() {
     vm.stackTop--;
     return *vm.stackTop;
 }
