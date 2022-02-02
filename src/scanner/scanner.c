@@ -149,11 +149,21 @@ static bool isAlpha(char ch) {
            ch == '_';
 }
 
+/*
+ * Check if we have identifier or some reserved word here.
+ */
+static TokenType identifierType() {
+
+
+    //TODO:
+    return TOKEN_IDENTIFIER;
+}
+
 static Token identifier() {
     // consume all alphabets or digits
     while (isAlpha(peek()) || isDigit(peek())) advance();
 
-    return makeToken(TOKEN_IDENTIFIER);
+    return makeToken(identifierType());
 }
 
 Token scanToken() {

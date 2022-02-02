@@ -20,7 +20,7 @@ compile: $(SRCS) $(HEADS)
 	$(CC) $(CCFLAGS) $(SRCS) -o $(TARGET)
 
 run: $(TARGET)
-	@./$(TARGET)
+	@./$(TARGET) examples/script.clox
 
 clean:
 	rm -rf $(BUILD_DIR)
