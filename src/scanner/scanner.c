@@ -17,7 +17,6 @@ typedef struct {
     int line;
 } Scanner;
 
-
 // Global scanner instance
 Scanner scanner;
 
@@ -25,6 +24,93 @@ void initScanner(const char *source) {
     scanner.start = source;
     scanner.current = source;
     scanner.line = 1;
+}
+
+static bool isAtEnd();
+
+static Token makeToken(TokenType type);
+
+static Token errorToken(const char *errorMsg);
+
+static char advance();
+
+static bool match(char expectedCh);
+
+static char peek();
+
+static char peekNext();
+
+static void skipWhitespaces();
+
+static bool isDigit(char ch);
+
+static bool isAlpha(char ch);
+
+static Token string();
+
+static Token number();
+
+static Token identifier();
+
+static TokenType identifierType();
+
+Token scanToken() {
+    skipWhitespaces();
+    scanner.start = scanner.current;
+
+    if (isAtEnd()) {
+        return makeToken(TOKEN_EOF);
+    }
+
+    char c = advance();
+
+    // handle identifiers and reserved keywords
+    if (isAlpha(c))return identifier();
+
+    // handle number
+    if (isDigit(c)) return number();
+
+    switch (c) {
+        // 1 char match
+        case '(':
+            return makeToken(TOKEN_LEFT_PAREN);
+        case ')':
+            return makeToken(TOKEN_RIGHT_PAREN);
+        case '{':
+            return makeToken(TOKEN_LEFT_BRACE);
+        case '}':
+            return makeToken(TOKEN_RIGHT_BRACE);
+        case ',':
+            return makeToken(TOKEN_COMMA);
+        case '.':
+            return makeToken(TOKEN_DOT);
+        case ';':
+            return makeToken(TOKEN_SEMICOLON);
+        case '+':
+            return makeToken(TOKEN_PLUS);
+        case '-':
+            return makeToken(TOKEN_MINUS);
+        case '*':
+            return makeToken(TOKEN_STAR);
+        case '/':
+            return makeToken(TOKEN_SLASH);
+
+            // 1 or 2 chars match
+        case '!':
+            return makeToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_EQUAL_EQUAL);
+        case '=':
+            return makeToken(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
+        case '<':
+            return makeToken(match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
+        case '>':
+            return makeToken(match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
+
+            // handle string value enclosed in double quotes
+        case '"':
+            return string();
+    }
+
+    return errorToken("Unexpected character");
 }
 
 static bool isAtEnd() {
@@ -163,64 +249,5 @@ static Token identifier() {
     while (isAlpha(peek()) || isDigit(peek())) advance();
 
     return makeToken(identifierType());
-}
-
-Token scanToken() {
-    skipWhitespaces();
-    scanner.start = scanner.current;
-
-    if (isAtEnd()) {
-        return makeToken(TOKEN_EOF);
-    }
-
-    char c = advance();
-
-    // handle identifiers and reserved keywords
-    if (isAlpha(c))return identifier();
-
-    // handle number
-    if (isDigit(c)) return number();
-
-    switch (c) {
-        // 1 char match
-        case '(':
-            return makeToken(TOKEN_LEFT_PAREN);
-        case ')':
-            return makeToken(TOKEN_RIGHT_PAREN);
-        case '{':
-            return makeToken(TOKEN_LEFT_BRACE);
-        case '}':
-            return makeToken(TOKEN_RIGHT_BRACE);
-        case ',':
-            return makeToken(TOKEN_COMMA);
-        case '.':
-            return makeToken(TOKEN_DOT);
-        case ';':
-            return makeToken(TOKEN_SEMICOLON);
-        case '+':
-            return makeToken(TOKEN_PLUS);
-        case '-':
-            return makeToken(TOKEN_MINUS);
-        case '*':
-            return makeToken(TOKEN_STAR);
-        case '/':
-            return makeToken(TOKEN_SLASH);
-
-            // 1 or 2 chars match
-        case '!':
-            return makeToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_EQUAL_EQUAL);
-        case '=':
-            return makeToken(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
-        case '<':
-            return makeToken(match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
-        case '>':
-            return makeToken(match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
-
-            // handle string value enclosed in double quotes
-        case '"':
-            return string();
-    }
-
-    return errorToken("Unexpected character");
 }
 
