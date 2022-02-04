@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "compiler.h"
 #include "../scanner/scanner.h"
+#include "../util/debug.h";
 
 static char *substring(const char *baseStr, size_t length) {
     char *tokenValue = (char *) malloc(length + 1);
@@ -67,6 +68,14 @@ static void emitBytes(uint8_t byte1, uint8_t byte2) {
 
 static void emitReturn() {
     emitByte(OP_RETURN);
+
+#ifdef DEBUG_COMPILER
+    if (parser.hadError) {
+        fprintf(stderr, "Compilation error detected");
+    } else {
+        disassembleChunk(currentChunk(), "code");
+    }
+#endif
 }
 
 static void endCompiler() {
@@ -137,6 +146,8 @@ static void errorAt(Token *token, const char *errorMsg) {
 }
 
 // ========== PRECEDENCE ==========
+// use Pratt's single pass table-driver recursive algorithm for
+// parsing and compiling.
 
 typedef enum {
     PREC_NONE,
