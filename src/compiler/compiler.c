@@ -25,6 +25,14 @@ static void consume(TokenType type, const char *msg);
 
 static void errorAt(Token *token, const char *msg);
 
+static void binary();
+
+static void grouping();
+
+static void unary();
+
+static void number();
+
 typedef struct {
     Token current;
     Token previous;
@@ -45,23 +53,23 @@ static Chunk *currentChunk() {
 /*
  * Write single byte to current compilation Chunk.
  */
-static void emitByte(uint8_t byte){
+static void emitByte(uint8_t byte) {
     writeChunk(currentChunk(), byte, parser.previous.line);
 }
 
 /*
  * Write 2 bytes to current compilation Chunk.
  */
-static void emitBytes(uint8_t byte1, uint8_t byte2){
+static void emitBytes(uint8_t byte1, uint8_t byte2) {
     emitByte(byte1);
     emitByte(byte2);
 }
 
-static void emitReturn(){
+static void emitReturn() {
     emitByte(OP_RETURN);
 }
 
-static void endCompiler(){
+static void endCompiler() {
     emitReturn();
 }
 
@@ -89,6 +97,16 @@ static void advance() {
         errorAtCurrent(parser.current.start);
     }
 }
+
+static void consume(TokenType type, const char *msg) {
+    if (parser.current.type == type) {
+        advance();
+        return;
+    }
+    errorAtCurrent(msg);
+}
+
+// ========== ERROR ==========
 
 static void errorAtCurrent(const char *msg) {
     errorAt(&parser.current, msg);
@@ -118,19 +136,184 @@ static void errorAt(Token *token, const char *errorMsg) {
     parser.hadError = true;
 }
 
-static void expression() {
-    //TODO:
+// ========== PRECEDENCE ==========
 
-    while( parser.current.type != TOKEN_EOF ){
-        advance();
-    }
+typedef enum {
+    PREC_NONE,
+    PREC_ASSIGNMENT, // =
+    PREC_OR, // or
+    PREC_AND, // and
+    PREC_EQUALITY, // ==, !=
+    PREC_COMPARISON, // <, <=, >, >=
+    PREC_TERM, // +, -
+    PREC_FACTOR, // *, /
+    PREC_UNARY, // -, !
+    PREC_CALL, // ., ()
+    PREC_PRIMARY
+} Precedence;
 
+
+typedef void (*ParseFn)();
+
+typedef struct {
+    ParseFn prefix;
+    ParseFn infix;
+    Precedence precedence;
+} ParseRule;
+
+ParseRule rules[] = {
+        [TOKEN_LEFT_PAREN] = {grouping, NULL, PREC_NONE},
+        [TOKEN_RIGHT_PAREN] = {NULL, NULL, PREC_NONE},
+
+        [TOKEN_LEFT_BRACE] = {NULL, NULL, PREC_NONE},
+        [TOKEN_RIGHT_BRACE] = {NULL, NULL, PREC_NONE},
+
+        [TOKEN_COMMA] = {NULL, NULL, PREC_NONE},
+        [TOKEN_DOT] = {NULL, NULL, PREC_NONE},
+
+        [TOKEN_MINUS] = {unary, binary, PREC_TERM},
+        [TOKEN_PLUS] = {NULL, binary, PREC_TERM},
+
+        [TOKEN_SEMICOLON] = {NULL, NULL, PREC_NONE},
+
+        [TOKEN_STAR] = {NULL, binary, PREC_FACTOR},
+        [TOKEN_SLASH] = {NULL, binary, PREC_FACTOR},
+
+        [TOKEN_BANG] = {NULL, NULL, PREC_NONE},
+        [TOKEN_BANG_EQUAL] = {NULL, NULL, PREC_NONE},
+        [TOKEN_EQUAL] = {NULL, NULL, PREC_NONE},
+        [TOKEN_EQUAL_EQUAL] = {NULL, NULL, PREC_NONE},
+        [TOKEN_GREATER] = {NULL, NULL, PREC_NONE},
+        [TOKEN_GREATER_EQUAL] = {NULL, NULL, PREC_NONE},
+        [TOKEN_LESS] = {NULL, NULL, PREC_NONE},
+        [TOKEN_LESS_EQUAL] = {NULL, NULL, PREC_NONE},
+
+        [TOKEN_IDENTIFIER] = {NULL, NULL, PREC_NONE},
+        [TOKEN_STRING] = {NULL, NULL, PREC_NONE},
+        [TOKEN_NUMBER] = {number, NULL, PREC_NONE},
+
+        [TOKEN_AND] = {NULL, NULL, PREC_NONE},
+        [TOKEN_CLASS] = {NULL, NULL, PREC_NONE},
+        [TOKEN_ELSE] = {NULL, NULL, PREC_NONE},
+        [TOKEN_FALSE] = {NULL, NULL, PREC_NONE},
+        [TOKEN_FOR] = {NULL, NULL, PREC_NONE},
+        [TOKEN_FUN] = {NULL, NULL, PREC_NONE},
+        [TOKEN_IF] = {NULL, NULL, PREC_NONE},
+        [TOKEN_NIL] = {NULL, NULL, PREC_NONE},
+        [TOKEN_OR] = {NULL, NULL, PREC_NONE},
+        [TOKEN_PRINT] = {NULL, NULL, PREC_NONE},
+        [TOKEN_RETURN] = {NULL, NULL, PREC_NONE},
+        [TOKEN_SUPER] = {NULL, NULL, PREC_NONE},
+        [TOKEN_THIS] = {NULL, NULL, PREC_NONE},
+        [TOKEN_TRUE] = {NULL, NULL, PREC_NONE},
+        [TOKEN_VAR] = {NULL, NULL, PREC_NONE},
+        [TOKEN_WHILE] = {NULL, NULL, PREC_NONE},
+
+        [TOKEN_ERROR] = {NULL, NULL, PREC_NONE},
+        [TOKEN_EOF] = {NULL, NULL, PREC_NONE},
+};
+
+static ParseRule *getRule(TokenType type) {
+    return &rules[type];
 }
 
-static void consume(TokenType type, const char *msg) {
-    if (parser.current.type == type) {
-        advance();
+static void parsePrecedence(Precedence precedence) {
+    advance();
+    ParseFn prefixRule = getRule(parser.previous.type)->prefix;
+
+    if (prefixRule == NULL) {
+        error("Expected prefix expression.");
         return;
     }
-    errorAtCurrent(msg);
+
+    prefixRule();
+
+    while (precedence <= getRule(parser.current.type)->precedence) {
+        advance();
+        ParseFn infixRule = getRule(parser.previous.type)->infix;
+        infixRule();
+    }
 }
+
+// ========== EXPRESSION ==========
+
+static void expression() {
+    parsePrecedence(PREC_ASSIGNMENT);
+}
+
+// ========== NUMBER ==========
+
+static uint8_t makeConstant(Value value) {
+    int index = addConstant(currentChunk(), value);
+    if (index > UINT8_MAX) {
+        error("Constant index greater than 255. Too many constants.");
+        return 0;
+    }
+    return (uint8_t) index;
+}
+
+static void emitConstant(Value value) {
+    emitBytes(OP_CONST, makeConstant(value));
+}
+
+static void number() {
+    double value = strtod(parser.previous.start, NULL);
+    emitConstant(value);
+}
+
+// ========== GROUPING ==========
+
+static void grouping() {
+    expression();
+    consume(TOKEN_RIGHT_PAREN, "Expected ')' after grouping.");
+}
+
+// ========== UNARY ==========
+
+static void unary() {
+    TokenType type = parser.previous.type;
+
+    // parse & compile operand
+    parsePrecedence(PREC_UNARY);
+
+    switch (type) {
+        case TOKEN_MINUS:
+            emitByte(OP_NEGATE);
+            break;
+        default:
+            return;
+    }
+}
+
+// ========== BINARY ==========
+
+static void binary() {
+    // store operator: +, -, *, /
+    TokenType operatorType = parser.previous.type;
+
+    ParseRule *rule = getRule(operatorType);
+    parsePrecedence((Precedence) (rule->precedence + 1));
+
+    // emit op-code
+    switch (operatorType) {
+        case TOKEN_PLUS:
+            emitByte(OP_ADD);
+            break;
+        case TOKEN_MINUS:
+            emitByte(OP_SUBTRACT);
+            break;
+        case TOKEN_STAR:
+            emitByte(OP_MULTIPLY);
+            break;
+        case TOKEN_SLASH:
+            emitByte(OP_DIVIDE);
+            break;
+        default:
+            return;
+    }
+}
+
+
+
+
+

@@ -1,12 +1,1 @@
-x123 + temp == 1 + 2;
-// single line comment should be ignored
-3.14 != "hello, world"
-2 < 10
-3 <= 100
-var x = 133;
-fun findMax(x , y) {
-    if( x > y ){
-        return x;
-    }
-    return y;
-}
+3 * 2 + 4

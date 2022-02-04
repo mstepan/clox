@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+// trace VM execution
 #define DEBUG_TRACE_EXECUTION
 
 #endif // CLOX_COMMON_H
