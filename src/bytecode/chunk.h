@@ -34,10 +34,23 @@ typedef struct {
     int count;
     int capacity;
 
-    // array for op codes
+    /**
+     * Array to store main opcodes.
+     *
+     * Example:
+     * 10 + 20
+     *
+     * code => [OP_CONST, 0, OP_CONST, 1, OP_ADD, OP_RETURN]
+     * constants => [10, 20]
+     */
     uint8_t *code;
 
-    // array for line number information
+    /**
+     * Array for line numbers, stored separately from main code, b/c we only need line information for debug purpose.
+     * So, better to do not mix with 'code' for better performance.
+     */
+     // TODO: taking into account that line array will contain lot's of repeated values,
+     //  like: [1, 1, 1, 1, 2, 2, 2, 3, 3 ..] better to use run-length encoding here, like [1:4, 2:3, 3:2]
     int *lines;
 
     // array for constants values (a.k.a. constant pool in other VMs)
@@ -48,10 +61,17 @@ void initChunk(Chunk *chunk);
 
 void writeChunk(Chunk *chunk, uint8_t byte, int line);
 
+int getLineNumber(Chunk *chunk, int offset);
+
 void freeChunk(Chunk *chunk);
 
 int addConstant(Chunk *chunk, Value value);
 
+/**
+ * Write OP_CONST_LONG + 3 bytes offset in constant pool.
+ * This instruction will be used for chunks that have more than 256 (2^8) constants in pool.
+ * Can store up to 2 ^ 24 = 16777216 constant values.
+ */
 void writeLongConstant(Chunk *chunk, Value value, int line);
 
 #endif // CLOX_CHUNK_H

@@ -72,7 +72,7 @@ static void endCompiler() {
 }
 
 /**
- * Use Pratt's single pass table-driver recursive algorithm for parsing and compiling.
+ * Use Vaughan Pratt's top-down (recursive) operator precedence parsing algorithm.
 */
 bool compile(const char *source, Chunk *chunk) {
     initScanner(source);
@@ -162,6 +162,11 @@ typedef struct {
 } ParseRule;
 
 ParseRule rules[] = {
+
+        /**
+         * Use the following format for table-driver parser:
+         * [scanner TokenType] =>  {<prefix function>, <infix function>, <precedence level>}
+         */
         [TOKEN_LEFT_PAREN] = {grouping, NULL, PREC_NONE},
         [TOKEN_RIGHT_PAREN] = {NULL, NULL, PREC_NONE},
 
@@ -217,7 +222,7 @@ static ParseRule *getRule(TokenType type) {
     return &rules[type];
 }
 
-static void parsePrecedence(Precedence precedence) {
+static void parsePrecedence(Precedence curPrecedenceLevel) {
     advance();
     ParseFn prefixRule = getRule(parser.previous.type)->prefix;
 
@@ -225,12 +230,14 @@ static void parsePrecedence(Precedence precedence) {
         error("Expected prefix expression.");
         return;
     }
-
+    // execute prefix rule function
     prefixRule();
 
-    while (precedence <= getRule(parser.current.type)->precedence) {
+    while (curPrecedenceLevel <= getRule(parser.current.type)->precedence) {
         advance();
         ParseFn infixRule = getRule(parser.previous.type)->infix;
+
+        // execute infix rule function
         infixRule();
     }
 }
@@ -288,13 +295,15 @@ static void unary() {
 // ========== BINARY ==========
 
 static void binary() {
-    // store operator: +, -, *, /
+    // store operator (+, -, *, /) to emit opcode
     TokenType operatorType = parser.previous.type;
 
     ParseRule *rule = getRule(operatorType);
+
+    // parse tokens with higher precedence level if any
     parsePrecedence((Precedence) (rule->precedence + 1));
 
-    // emit op-code
+    // emit opcode
     switch (operatorType) {
         case TOKEN_PLUS:
             emitByte(OP_ADD);
