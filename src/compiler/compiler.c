@@ -62,7 +62,7 @@ static void emitReturn() {
     if (parser.hadError) {
         fprintf(stderr, "Compilation error detected");
     } else {
-        disassembleChunk(currentChunk(), "code");
+        disassembleChunk(currentChunk(), "VM Chunk");
     }
 #endif
 }
@@ -71,6 +71,9 @@ static void endCompiler() {
     emitReturn();
 }
 
+/**
+ * Use Pratt's single pass table-driver recursive algorithm for parsing and compiling.
+*/
 bool compile(const char *source, Chunk *chunk) {
     initScanner(source);
 
@@ -135,9 +138,6 @@ static void errorAt(Token *token, const char *errorMsg) {
 }
 
 // ========== PRECEDENCE ==========
-// use Pratt's single pass table-driver recursive algorithm for
-// parsing and compiling.
-
 typedef enum {
     PREC_NONE,
     PREC_ASSIGNMENT, // =

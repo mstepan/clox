@@ -9,6 +9,6 @@
 #define DEBUG_COMPILER
 
 // trace VM execution
-//#define DEBUG_TRACE_EXECUTION
+#define DEBUG_TRACE_EXECUTION
 
 #endif // CLOX_COMMON_H

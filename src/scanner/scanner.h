@@ -3,6 +3,9 @@
 
 typedef enum {
 
+    // will use token with 0 value as undefined to simplify debugging
+    TOKEN_UNDEFINED,
+
     // 1 char
     TOKEN_LEFT_PAREN, // (
     TOKEN_RIGHT_PAREN, // )

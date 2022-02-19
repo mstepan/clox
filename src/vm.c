@@ -31,6 +31,16 @@ static void negateStackTop() {
     *(vm.stackTop - 1) = -(*(vm.stackTop - 1));
 }
 
+static void printStackTrace() {
+    printf("\tstack:\t");
+    for (Value *cur = vm.stack; cur < vm.stackTop; cur++) {
+        printf("[ ");
+        printValue(*cur);
+        printf(" ]");
+    }
+    printf("<-- top \n");
+}
+
 static InterpretResult run() {
 #define READ_BYTE()(*vm.ip++)
 #define READ_CONSTANT() (vm.chunk->constants.values[READ_BYTE()])
@@ -103,7 +113,14 @@ InterpretResult interpret(const char *source) {
     vm.chunk = &chunk;
     vm.ip = vm.chunk->code;
 
+#ifdef DEBUG_TRACE_EXECUTION
+    printf("============ VM runtime tracing START ============\n");
+#endif
     InterpretResult result = run();
+
+#ifdef DEBUG_TRACE_EXECUTION
+    printf("============ VM runtime tracing END ============\n");
+#endif
 
     freeChunk(&chunk);
 
