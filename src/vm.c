@@ -17,16 +17,6 @@ void initVM() {
 void freeVM() {
 }
 
-static void printStackTrace() {
-    printf("\tstack:\t");
-    for (Value *cur = vm.stack; cur < vm.stackTop; cur++) {
-        printf("[ ");
-        printValue(*cur);
-        printf(" ]");
-    }
-    printf("<-- top \n");
-}
-
 static void negateStackTop() {
     *(vm.stackTop - 1) = -(*(vm.stackTop - 1));
 }

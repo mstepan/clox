@@ -49,6 +49,9 @@ static void runFile(const char *path) {
     if (result == INTERPRET_RUNTIME_ERROR)exit(70);
 }
 
+/**
+ * Read the whole file content into dynamic char array.
+ */
 static char *readFile(const char *path) {
     FILE *file = fopen(path, "rb");
     if (file == NULL) {

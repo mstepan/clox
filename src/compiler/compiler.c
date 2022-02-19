@@ -2,19 +2,7 @@
 #include <stdlib.h>
 #include "compiler.h"
 #include "../scanner/scanner.h"
-#include "../util/debug.h";
-
-static char *substring(const char *baseStr, size_t length) {
-    char *tokenValue = (char *) malloc(length + 1);
-
-    for (int i = 0; i < length; i++) {
-        tokenValue[i] = baseStr[i];
-    }
-
-    tokenValue[length] = '\0';
-
-    return tokenValue;
-}
+#include "../util/debug.h"
 
 static void advance();
 

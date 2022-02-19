@@ -52,7 +52,7 @@ typedef struct {
     const char* start;
 
     // token length
-    int length;
+    uint8_t length;
 
     // line number
     int line;

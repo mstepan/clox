@@ -6,7 +6,6 @@
 
 
 typedef struct {
-
     // beginning of current lexeme
     const char *start;
 
@@ -56,6 +55,9 @@ static TokenType identifierType();
 
 static TokenType checkKeyword(int start, int length, const char *rest, TokenType type);
 
+/**
+ * Return next available token.
+ */
 Token scanToken() {
     skipWhitespaces();
     scanner.start = scanner.current;
@@ -123,17 +125,21 @@ static Token makeToken(TokenType type) {
     Token token;
     token.type = type;
     token.start = scanner.start;
-    token.length = (int) (scanner.current - scanner.start);
+    token.length = (uint8_t) (scanner.current - scanner.start);
     token.line = scanner.line;
 
     return token;
+}
+
+static int minInts(int first, int second){
+    return first <= second ? first : second;
 }
 
 static Token errorToken(const char *errorMsg) {
     Token token;
     token.type = TOKEN_ERROR;
     token.start = errorMsg;
-    token.length = (int) strlen(errorMsg);
+    token.length = (uint8_t) minInts(UINT8_MAX, strlen(errorMsg));
     token.line = scanner.line;
 
     return token;
@@ -141,7 +147,7 @@ static Token errorToken(const char *errorMsg) {
 
 static char advance() {
     char ch = *scanner.current;
-    scanner.current++;
+    ++scanner.current;
     return ch;
 }
 
@@ -157,6 +163,9 @@ static bool match(char expectedCh) {
     return true;
 }
 
+/**
+ * Return current character, but doesn't move scanner forward
+ */
 static char peek() {
     return *scanner.current;
 }
@@ -168,8 +177,8 @@ static char peekNext() {
     return *(scanner.current + 1);
 }
 
-/*
- * Skip all whitespace character + skip single line comments.
+/**
+ * Skip all whitespace character, skip single line comments.
  */
 static void skipWhitespaces() {
     for (;;) {
