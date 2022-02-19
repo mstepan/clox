@@ -26,12 +26,8 @@ typedef enum {
 
 void initVM();
 
-void freeVM();
-
 InterpretResult interpret(const char* source);
 
-void push(Value value);
-
-Value pop();
+void freeVM();
 
 #endif //CLOX_VM_H

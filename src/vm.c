@@ -17,6 +17,16 @@ void initVM() {
 void freeVM() {
 }
 
+static void push(Value value) {
+    (*vm.stackTop) = value;
+    vm.stackTop++;
+}
+
+static Value pop() {
+    vm.stackTop--;
+    return *vm.stackTop;
+}
+
 static void negateStackTop() {
     *(vm.stackTop - 1) = -(*(vm.stackTop - 1));
 }
@@ -100,13 +110,5 @@ InterpretResult interpret(const char *source) {
     return result;
 }
 
-void push(Value value) {
-    (*vm.stackTop) = value;
-    vm.stackTop++;
-}
 
-Value pop() {
-    vm.stackTop--;
-    return *vm.stackTop;
-}
 

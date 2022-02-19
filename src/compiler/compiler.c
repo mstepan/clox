@@ -4,6 +4,7 @@
 #include "../scanner/scanner.h"
 #include "../util/debug.h"
 
+// Forward declaration
 static void advance();
 
 static void errorAtCurrent(const char *msg);
@@ -39,14 +40,14 @@ static Chunk *currentChunk() {
     return compilingChunk;
 }
 
-/*
+/**
  * Write single byte to current compilation Chunk.
  */
 static void emitByte(uint8_t byte) {
     writeChunk(currentChunk(), byte, parser.previous.line);
 }
 
-/*
+/**
  * Write 2 bytes to current compilation Chunk.
  */
 static void emitBytes(uint8_t byte1, uint8_t byte2) {

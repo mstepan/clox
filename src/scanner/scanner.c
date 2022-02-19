@@ -2,8 +2,36 @@
 #include <string.h>
 #include <stdlib.h>
 #include "../util/common.h"
+#include "../util/number_utils.h"
+#include "../util/string_utils.h"
 #include "scanner.h"
 
+// Forward declaration
+static bool isAtEnd();
+
+static Token makeToken(TokenType type);
+
+static Token errorToken(const char *errorMsg);
+
+static char advance();
+
+static bool match(char expectedCh);
+
+static char peek();
+
+static char peekNext();
+
+static void skipWhitespaces();
+
+static Token string();
+
+static Token number();
+
+static Token identifier();
+
+static TokenType identifierType();
+
+static TokenType checkKeyword(int start, int length, const char *rest, TokenType type);
 
 typedef struct {
     // beginning of current lexeme
@@ -24,36 +52,6 @@ void initScanner(const char *source) {
     scanner.current = source;
     scanner.line = 1;
 }
-
-static bool isAtEnd();
-
-static Token makeToken(TokenType type);
-
-static Token errorToken(const char *errorMsg);
-
-static char advance();
-
-static bool match(char expectedCh);
-
-static char peek();
-
-static char peekNext();
-
-static void skipWhitespaces();
-
-static bool isDigit(char ch);
-
-static bool isAlpha(char ch);
-
-static Token string();
-
-static Token number();
-
-static Token identifier();
-
-static TokenType identifierType();
-
-static TokenType checkKeyword(int start, int length, const char *rest, TokenType type);
 
 /**
  * Return next available token.
@@ -131,15 +129,11 @@ static Token makeToken(TokenType type) {
     return token;
 }
 
-static int minInts(int first, int second){
-    return first <= second ? first : second;
-}
-
 static Token errorToken(const char *errorMsg) {
     Token token;
     token.type = TOKEN_ERROR;
     token.start = errorMsg;
-    token.length = (uint8_t) minInts(UINT8_MAX, strlen(errorMsg));
+    token.length = (uint8_t) min(UINT8_MAX, strlen(errorMsg));
     token.line = scanner.line;
 
     return token;
@@ -159,7 +153,7 @@ static bool match(char expectedCh) {
     if (*scanner.current != expectedCh) {
         return false;
     }
-    scanner.current++;
+    ++scanner.current;
     return true;
 }
 
@@ -207,16 +201,6 @@ static void skipWhitespaces() {
     }
 }
 
-static bool isDigit(char ch) {
-    return ch >= '0' && ch <= '9';
-}
-
-static bool isAlpha(char ch) {
-    return (ch >= 'a' && ch <= 'z') ||
-           (ch >= 'A' && ch <= 'Z') ||
-           ch == '_';
-}
-
 static Token string() {
     while (peek() != '"' && !isAtEnd()) {
         // we support multi-line strings, so just handle new line properly
@@ -230,7 +214,6 @@ static Token string() {
     advance();
     return makeToken(TOKEN_STRING);
 }
-
 
 static Token number() {
     while (isDigit(peek())) advance();
@@ -246,7 +229,6 @@ static Token number() {
     return makeToken(TOKEN_NUMBER);
 }
 
-
 static Token identifier() {
     // consume all alphabets or digits
     while (isAlpha(peek()) || isDigit(peek())) advance();
@@ -254,7 +236,7 @@ static Token identifier() {
     return makeToken(identifierType());
 }
 
-/*
+/**
  * Check if we have identifier or some reserved word here.
  */
 static TokenType identifierType() {
@@ -311,7 +293,6 @@ static TokenType identifierType() {
 
     return TOKEN_IDENTIFIER;
 }
-
 
 static TokenType checkKeyword(int start, int length, const char *rest, TokenType type) {
     if (scanner.current - scanner.start == start + length && memcmp(scanner.start + start, rest, length) == 0) {
