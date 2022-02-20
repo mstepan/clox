@@ -29,9 +29,15 @@ run: $(TARGET)
 test:
 	rm -rf $(TESTS_OUT_DIR)
 	mkdir -p $(TESTS_OUT_DIR)
+
 	$(CC) $(CCFLAGS) -c $(TESTS_DIR)/chunk_test.c -o $(TESTS_OUT_DIR)/chunk_test.o
 	$(CC) $(CCFLAGS) $(SOURCES_WITHOUT_MAIN) -v $(TESTS_OUT_DIR)/chunk_test.o -lcheck -lm -lpthread -o $(TESTS_OUT_DIR)/test_chunk
+
+	$(CC) $(CCFLAGS) -c $(TESTS_DIR)/scanner_test.c -o $(TESTS_OUT_DIR)/scanner_test.o
+	$(CC) $(CCFLAGS) $(SOURCES_WITHOUT_MAIN) -v $(TESTS_OUT_DIR)/scanner_test.o -lcheck -lm -lpthread -o $(TESTS_OUT_DIR)/scanner_test
+
 	@./$(TESTS_OUT_DIR)/test_chunk
+	@./$(TESTS_OUT_DIR)/scanner_test
 
 clean:
 	rm -rf $(BUILD_DIR)

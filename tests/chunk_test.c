@@ -2,6 +2,7 @@
 // Created by Maksym Stepanenko on 19.02.2022.
 //
 
+#include <stdio.h>
 #include <check.h>
 #include "../src/bytecode/chunk.h"
 
@@ -37,7 +38,7 @@ END_TEST
  * Add test cases to test suite.
  */
 Suite *chunk_suite(void) {
-    Suite *s = suite_create("Chunk");
+    Suite *s = suite_create("Chunk Tests");
     TCase *tc_core = tcase_create("Core");
 
     tcase_add_test(tc_core, test_chunk);
