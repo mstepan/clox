@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "compiler.h"
 #include "../scanner/scanner.h"
 #include "../util/debug.h"

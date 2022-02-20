@@ -30,6 +30,7 @@ test:
 	rm -rf $(TESTS_OUT_DIR)
 	mkdir -p $(TESTS_OUT_DIR)
 
+	#todo: remove duplicated lines below
 	$(CC) $(CCFLAGS) -c $(TESTS_DIR)/chunk_test.c -o $(TESTS_OUT_DIR)/chunk_test.o
 	$(CC) $(CCFLAGS) $(SOURCES_WITHOUT_MAIN) -v $(TESTS_OUT_DIR)/chunk_test.o -lcheck -lm -lpthread -o $(TESTS_OUT_DIR)/test_chunk
 
@@ -42,3 +43,4 @@ test:
 clean:
 	rm -rf $(BUILD_DIR)
 	rm -rf $(TESTS_OUT_DIR)
+
