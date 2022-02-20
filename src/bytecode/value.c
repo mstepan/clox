@@ -20,6 +20,21 @@ void writeValueArray(ValueArray *array, Value value) {
     array->count++;
 }
 
+void printValue(Value value) {
+
+    switch (value.type) {
+        case VAL_NIL:
+            printf("nil");
+            break;
+        case VAL_BOOL:
+            printf("%s", AS_BOOL(value) ? "true" : "false");
+            break;
+        case VAL_NUMBER:
+            printf("%g", AS_NUMBER(value));
+            break;
+    }
+}
+
 Value BOOL_VAL(bool value) {
     return (Value){VAL_BOOL, {.boolean = value}};
 }

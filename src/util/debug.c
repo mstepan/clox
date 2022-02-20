@@ -2,19 +2,6 @@
 
 #include "debug.h"
 
-#include "../bytecode/value.h"
-
-void printValue(Value value) {
-    if (IS_NIL(value)) {
-        printf("Nil");
-    } else if (IS_BOOL(value)) {
-        printf("%s", AS_BOOL(value) ? "true" : "false");
-    } else if (IS_NUMBER(value)) {
-        printf("%g", AS_NUMBER(value));
-    } else {
-        printf("Unknown type: %d", value.type);
-    }
-}
 
 static int simpleInstruction(const char *opName, int offset) {
     printf("%s\n", opName);
@@ -64,10 +51,19 @@ int disassembleInstruction(Chunk *chunk, int offset) {
     uint8_t instruction = chunk->code[offset];
 
     switch (instruction) {
+
         case OP_CONST:
             return constantInstruction("OP_CONST", chunk, offset);
         case OP_CONST_LONG:
             return constantLongInstruction("OP_CONST_LONG", chunk, offset);
+
+        case OP_TRUE:
+            return simpleInstruction("OP_TRUE", offset);
+        case OP_FALSE:
+            return simpleInstruction("OP_FALSE", offset);
+        case OP_NIL:
+            return simpleInstruction("OP_NIL", offset);
+
         case OP_ADD:
             return simpleInstruction("OP_ADD", offset);
         case OP_SUBTRACT:
@@ -76,8 +72,10 @@ int disassembleInstruction(Chunk *chunk, int offset) {
             return simpleInstruction("OP_MULTIPLY", offset);
         case OP_DIVIDE:
             return simpleInstruction("OP_DIVIDE", offset);
+
         case OP_NEGATE:
             return simpleInstruction("OP_NEGATE", offset);
+
         case OP_RETURN:
             return simpleInstruction("OP_RETURN", offset);
         default:

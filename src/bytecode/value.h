@@ -17,6 +17,8 @@ typedef struct {
     } as;
 } Value;
 
+void printValue(Value value);
+
 /**
  * Convert clox value to c-value
  */

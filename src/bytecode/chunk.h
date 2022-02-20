@@ -15,6 +15,9 @@ typedef enum {
     // 4 bytes: OP_CONST <3 bytes for index, stored in little-endian order, least-significant byte first>
     OP_CONST_LONG,
 
+    OP_NIL,
+    OP_TRUE,
+    OP_FALSE,
 
     // 1 byte
     OP_ADD,
