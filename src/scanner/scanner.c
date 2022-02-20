@@ -96,7 +96,7 @@ Token scanToken() {
 
             // 1 or 2 chars match
         case '!':
-            return makeToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_EQUAL_EQUAL);
+            return makeToken(match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
         case '=':
             return makeToken(match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
         case '<':

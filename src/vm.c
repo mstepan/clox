@@ -54,6 +54,13 @@ static void runtimeError(const char *format, ...) {
     fprintf(stderr, "[line %d] in script\n", line);
     resetStack();
 }
+/**
+ * Nil and false literals => false
+ * true and everything else => true
+ */
+static bool isFalsey(Value value) {
+    return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
+}
 
 static InterpretResult run() {
 #define READ_BYTE()(*vm.ip++)
@@ -112,6 +119,9 @@ static InterpretResult run() {
                 BINARY_OP(NUMBER_VAL, /);
                 break;
 
+            case OP_NOT:
+                push(BOOL_VAL(isFalsey(pop())));
+                break;
             case OP_NEGATE: {
                 if (!IS_NUMBER(peek(0))) {
                     runtimeError("Can't negate NON number value.");
