@@ -11,6 +11,10 @@ To run compiled application, just execute:
 make run
 ```
 
+## Run unit tests.
+
+For unit tests install check library. On Mac OS just execute `brew install check`. For other platforms, see [check-installation-page](https://libcheck.github.io/check/web/install.html)
+
 ## High level architecture
 
 ### Lexer
