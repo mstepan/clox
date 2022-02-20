@@ -2,8 +2,18 @@
 
 #include "debug.h"
 
+#include "../bytecode/value.h"
+
 void printValue(Value value) {
-    printf("%g", value);
+    if (IS_NIL(value)) {
+        printf("Nil");
+    } else if (IS_BOOL(value)) {
+        printf("%s", AS_BOOL(value) ? "true" : "false");
+    } else if (IS_NUMBER(value)) {
+        printf("%g", AS_NUMBER(value));
+    } else {
+        printf("Unknown type: %d", value.type);
+    }
 }
 
 static int simpleInstruction(const char *opName, int offset) {
@@ -22,7 +32,7 @@ static int constantInstruction(const char *opName, Chunk *chunk, int offset) {
     return offset + 2;
 }
 
-static int constantLongInstruction(const char *opName, Chunk *chunk, int offset){
+static int constantLongInstruction(const char *opName, Chunk *chunk, int offset) {
 
     // OP_CONST_LONG store operand in little-endian order
     uint8_t loPart = chunk->code[offset + 1];

@@ -1,5 +1,7 @@
-#include <stdio.h>
+#include "util/common.h"
+#include <stdarg.h>
 #include "vm.h"
+#include "bytecode/value.h"
 #include "util/debug.h"
 #include "compiler/compiler.h"
 
@@ -27,10 +29,6 @@ static Value pop() {
     return *vm.stackTop;
 }
 
-static void negateStackTop() {
-    *(vm.stackTop - 1) = -(*(vm.stackTop - 1));
-}
-
 static void printStackTrace() {
     printf("\tstack:\t");
     for (Value *cur = vm.stack; cur < vm.stackTop; cur++) {
@@ -41,14 +39,34 @@ static void printStackTrace() {
     printf("<-- top \n");
 }
 
+static Value peek(int distance) {
+    return vm.stackTop[-1 - distance];
+}
+
+static void runtimeError(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    va_end(args);
+    fputs("\n", stderr);
+    size_t instruction = vm.ip - vm.chunk->code - 1;
+    int line = vm.chunk->lines[instruction];
+    fprintf(stderr, "[line %d] in script\n", line);
+    resetStack();
+}
+
 static InterpretResult run() {
 #define READ_BYTE()(*vm.ip++)
 #define READ_CONSTANT() (vm.chunk->constants.values[READ_BYTE()])
-#define BINARY_OP(op) \
+#define BINARY_OP(wrapValue, op) \
     do {              \
-    double second = pop(); \
-    double first = pop();  \
-    push(first op second); \
+    if( !IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) { \
+        runtimeError("Operand must be numbers");      \
+        return INTERPRET_RUNTIME_ERROR;  \
+    }\
+    double second = AS_NUMBER(pop()); \
+    double first = AS_NUMBER(pop());  \
+    push(wrapValue(first op second)); \
     } while( false ) \
 
     for (;;) {
@@ -70,22 +88,24 @@ static InterpretResult run() {
             }
 
             case OP_ADD:
-                BINARY_OP(+);
+                BINARY_OP(NUMBER_VAL, +);
                 break;
             case OP_SUBTRACT:
-                BINARY_OP(-);
+                BINARY_OP(NUMBER_VAL, -);
                 break;
             case OP_MULTIPLY:
-                BINARY_OP(*);
+                BINARY_OP(NUMBER_VAL, *);
                 break;
             case OP_DIVIDE:
-                BINARY_OP(/);
+                BINARY_OP(NUMBER_VAL, /);
                 break;
 
             case OP_NEGATE: {
-                // negate last value on top of stack
-                // it's quicker than just pop(), negate and push()
-                negateStackTop();
+                if (!IS_NUMBER(peek(0))) {
+                    runtimeError("Can't negate NON number value.");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                push(NUMBER_VAL(-AS_NUMBER(pop())));
                 break;
             }
             case OP_RETURN: {
