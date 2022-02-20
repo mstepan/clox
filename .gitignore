@@ -1,9 +1,9 @@
 # MacOS files
 .DS_Store
 
-# build folder
-build/*
-build-test/*
+# build and tests build folders
+build
+build-tests
 
 # Prerequisites
 *.d
