@@ -54,12 +54,39 @@ static void runtimeError(const char *format, ...) {
     fprintf(stderr, "[line %d] in script\n", line);
     resetStack();
 }
+
 /**
- * Nil and false literals => false
- * true and everything else => true
+ * Nil behaves live FALSE,
+ * 'boolean value evaluated to itself,
+ * everything else behaves like TRUE.
  */
-static bool isFalsey(Value value) {
-    return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
+static bool isTruth(Value value) {
+    if (IS_NIL(value)) {
+        return false;
+    }
+
+    if (IS_BOOL(value)) {
+        return AS_BOOL(value);
+    }
+
+    return true;
+}
+
+static bool isEquals(Value first, Value second) {
+    if (first.type != second.type) {
+        return false;
+    }
+
+    switch (first.type) {
+        case VAL_NUMBER:
+            return AS_NUMBER(first) == AS_NUMBER(second);
+        case VAL_BOOL:
+            return AS_BOOL(first) == AS_BOOL(second);
+        case VAL_NIL:
+            return true;
+        default:
+            return false;
+    }
 }
 
 static InterpretResult run() {
@@ -106,6 +133,22 @@ static InterpretResult run() {
                 break;
             }
 
+            // logical operators ==, <, >
+            case OP_EQUAL: {
+                Value first = pop();
+                Value second = pop();
+                push(BOOL_VAL(isEquals(first, second)));
+                break;
+            }
+            case OP_LESS: {
+                BINARY_OP(BOOL_VAL, <);
+                break;
+            }
+            case OP_GREATER: {
+                BINARY_OP(BOOL_VAL, >);
+                break;
+            }
+
             case OP_ADD:
                 BINARY_OP(NUMBER_VAL, +);
                 break;
@@ -120,7 +163,7 @@ static InterpretResult run() {
                 break;
 
             case OP_NOT:
-                push(BOOL_VAL(isFalsey(pop())));
+                push(BOOL_VAL(!isTruth(pop())));
                 break;
             case OP_NEGATE: {
                 if (!IS_NUMBER(peek(0))) {
